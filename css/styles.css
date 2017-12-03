@@ -1,0 +1,44 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+.content-wrapper {
+	margin: 0 auto;
+	text-align: center;
+}
+
+.heading-wrapper {
+	margin-top: 5%;
+}
+
+.input-wrapper {
+	margin-top: 40px;
+}
+
+.container {
+	position: relative;
+	border: 5px solid #000;
+	border-top-color: transparent;
+	display: inline-block;
+	margin: 100px 20px;
+}
+
+.disk {
+	position: absolute;
+	display: block;
+	height: 20px;
+	margin: 1px;
+	border: 2px solid #000;
+	text-align: center;
+	left: 50%;
+	border-radius: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
