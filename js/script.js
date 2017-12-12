@@ -76,7 +76,7 @@ function renderElements() {
 
 	containerStyle = ".container {" +
 		"width: " + (diskMinWidth + (maxNoOfDisks * 20)) + "px;" +
-		"height: " + ((numOfDisks + 1) * diskHeight) + "px;" +
+		"height: " + ((maxNoOfDisks + 1) * diskHeight) + "px;" +
 	"}";
 	jsStyles.sheet.insertRule(containerStyle, 0);
 
