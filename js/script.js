@@ -23,7 +23,7 @@ function $class(className) {
 }
 
 function renderElements() {
-	var containerStyle, numOfDisks = 4, diskWidth = 34, diskHeight = 31;
+	var containerStyle, numOfDisks = 4, maxNoOfDisks = 7, diskMinWidth = 34, diskHeight = 31;
 
 	if($inputNumOfDisks) {
 		numOfDisks = parseInt($inputNumOfDisks.value, 10);
@@ -44,8 +44,8 @@ function renderElements() {
 		$containers[i].innerHTML = "";
 	}
 
-	for(var i = 1; i <= numOfDisks; i++, diskWidth += 20) {
-		var disk = document.createElement("div"), diskStyle, diskPositionStyle;
+	for(var i = 1, diskWidth = diskMinWidth; i <= numOfDisks; i++, diskWidth += 20) {
+		var disk = document.createElement("div"), diskStyle, diskLabelStyle, diskPositionStyle;
 
 		disk.setAttribute("id", "disk-" + i);
 		disk.setAttribute("class", "disk js-move-disk");
@@ -57,6 +57,11 @@ function renderElements() {
 			"margin-left: " + -(diskWidth + 4)/2 + "px;" +
 		"}";
 		jsStyles.sheet.insertRule(diskStyle, 0);
+
+		diskLabelStyle = "#disk-" + i + "::after {" +
+			"content: " + "\"" + i + "\";" +
+		"}";
+		jsStyles.sheet.insertRule(diskLabelStyle, 0);
 
 		diskPositionStyle = ".container > .disk:nth-last-child(" + i + ") {" +
 			"bottom: " + (((diskHeight - 1) * (i - 1)) + 1) + "px;" +
@@ -70,7 +75,7 @@ function renderElements() {
 	}
 
 	containerStyle = ".container {" +
-		"width: " + diskWidth + "px;" +
+		"width: " + (diskMinWidth + (maxNoOfDisks * 20)) + "px;" +
 		"height: " + ((numOfDisks + 1) * diskHeight) + "px;" +
 	"}";
 	jsStyles.sheet.insertRule(containerStyle, 0);
@@ -102,7 +107,7 @@ function dragEnter(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target) && isMoveable) {
-		e.target.style.borderStyle = 'dashed';
+		e.target.style.borderStyle = 'dotted';
 	}
 }
 
