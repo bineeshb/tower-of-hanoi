@@ -1,5 +1,9 @@
 var isMoveable = false,
-	$disks, $containers, $inputNumOfDisks = $id("js-num-of-disks");
+	$disks, $containers,
+	$inputNumOfDisks = $id("js-ip-num-of-disks"),
+	$outputNumOfDisks = $id("js-op-num-of-disks"),
+	noOfMoves = 0,
+	$noOfMoves = $id("js-no-of-moves");
 
 var jsStyles = (function() {
     // Create the <style> tag
@@ -28,6 +32,7 @@ function renderElements() {
 	if($inputNumOfDisks) {
 		numOfDisks = parseInt($inputNumOfDisks.value, 10);
 	}
+	$outputNumOfDisks.innerHTML = numOfDisks;
 
 	for(var i = jsStyles.sheet.cssRules.length - 1; i > -1; i--) {
 		jsStyles.sheet.deleteRule(i);
@@ -48,9 +53,14 @@ function renderElements() {
 		var disk = document.createElement("div"), diskStyle, diskLabelStyle, diskPositionStyle;
 
 		disk.setAttribute("id", "disk-" + i);
-		disk.setAttribute("class", "disk js-move-disk");
 		disk.setAttribute("draggable", false);
 		disk.setAttribute("data-weightage", i);
+
+		if (i % 2 == 0) {
+			disk.setAttribute("class", "disk js-move-disk disk-variant-2");
+		} else {
+			disk.setAttribute("class", "disk js-move-disk disk-variant-1");
+		}
 
 		diskStyle = "#disk-" + i + "{" +
 			"width: " + diskWidth + "px;" +
@@ -81,7 +91,10 @@ function renderElements() {
 	jsStyles.sheet.insertRule(containerStyle, 0);
 
 	$disks = $class("js-move-disk");
-
+	
+	noOfMoves = 0;
+	$noOfMoves.innerHTML = noOfMoves;
+	
 	checkContainers();
 }
 
@@ -107,7 +120,7 @@ function dragEnter(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target) && isMoveable) {
-		e.target.style.borderStyle = 'dotted';
+		e.target.style.borderBottomStyle = 'dotted';
 	}
 }
 
@@ -115,7 +128,7 @@ function dragLeave(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target)) {
-		e.target.style.borderStyle = 'solid';
+		e.target.style.borderBottomStyle = 'solid';
 	}
 }
 
@@ -141,8 +154,9 @@ function dropped(e) {
 	if(isContainer(e.target)) {
 		if(isMoveValid) {
 			e.target.insertBefore($id(elemId), e.target.firstChild);
+			$noOfMoves.innerHTML = ++noOfMoves;
 		}
-		e.target.style.borderStyle = 'solid';
+		e.target.style.borderBottomStyle = 'solid';
 	}
 
 	checkContainers();
