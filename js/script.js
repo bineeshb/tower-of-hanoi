@@ -1,5 +1,6 @@
 var isMoveable = false,
 	$disks, $containers,
+	$btnReset = $id("js-btn-reset"),
 	$inputNumOfDisks = $id("js-ip-num-of-disks"),
 	$outputNumOfDisks = $id("js-op-num-of-disks"),
 	noOfMoves = 0,
@@ -85,7 +86,6 @@ function renderElements() {
 	}
 
 	containerStyle = ".container {" +
-		"width: " + (diskMinWidth + (maxNoOfDisks * 20)) + "px;" +
 		"height: " + ((maxNoOfDisks + 1) * diskHeight) + "px;" +
 	"}";
 	jsStyles.sheet.insertRule(containerStyle, 0);
@@ -100,6 +100,10 @@ function renderElements() {
 
 function init() {
 	$inputNumOfDisks.addEventListener("change", function(e) {
+		renderElements();
+	}, false);
+
+	$btnReset.addEventListener("click", function(e) {
 		renderElements();
 	}, false);
 
@@ -120,6 +124,7 @@ function dragEnter(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target) && isMoveable) {
+		e.target.style.borderTopStyle = 'dotted';
 		e.target.style.borderBottomStyle = 'dotted';
 	}
 }
@@ -128,6 +133,7 @@ function dragLeave(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target)) {
+		e.target.style.borderTopStyle = 'solid';
 		e.target.style.borderBottomStyle = 'solid';
 	}
 }
@@ -156,6 +162,7 @@ function dropped(e) {
 			e.target.insertBefore($id(elemId), e.target.firstChild);
 			$noOfMoves.innerHTML = ++noOfMoves;
 		}
+		e.target.style.borderTopStyle = 'solid';
 		e.target.style.borderBottomStyle = 'solid';
 	}
 
