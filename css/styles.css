@@ -13,22 +13,93 @@ body {
 }
 
 .heading-wrapper {
-	margin-top: 40px;
+	padding-top: 25px;
+	padding-bottom: 25px;
+	background-color: #EEEEEE;
+	border-bottom: 1px solid #E0E0E0;
 }
 
-.input-wrapper {
-	margin-top: 20px;
+.heading-wrapper h1 {
+	font-weight: 500;
+    font-size: 40px;
 }
 
-.input-wrapper p {
-	margin-top: 20px;
+.info-wrapper {
+	margin-top: 50px;
+}
+
+.container-wrapper {
+	margin: 0 auto;
+	margin-top: 60px;
+	display: table;
+    width: 80%;
+    border-collapse: separate;
+    border-spacing: 35px 10px;
+}
+
+.controls-wrapper, .status-wrapper, .container {
+	display: table-cell;
+	width: 20%;
 }
 
 .container {
 	position: relative;
-	border-bottom: 5px solid #424242;
-	display: inline-block;
-	margin: 50px 20px 20px;
+	border-top: 5px solid #616161;
+	border-bottom: 5px solid #616161;
+}
+
+.container.left::after {
+	content: "L";
+}
+
+.container.center::after {
+	content: "C";
+}
+
+.container.right::after {
+	content: "R";
+}
+
+.container::after {
+	color: #ffffff;
+    background-color: #616161;
+    border: 4px solid #616161;
+    padding: 1px 6px;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+
+.controls-wrapper {
+	vertical-align: bottom;
+}
+
+.status-wrapper {
+	vertical-align: middle;
+}
+
+.status-wrapper .btn-wrapper {
+	margin-top: 50%;
+}
+
+.display-count {
+	padding: 3px 6px;
+    background-color: #D32F2F;
+    color: #fff;
+    border-radius: 3px;
+}
+
+.controls-wrapper, .status-wrapper {
+	background-color: #F5F5F5;
+	padding: 15px;
+	border: 1px solid #E0E0E0;
+}
+
+.range-input-wrapper {
+	min-height: 100px;
+}
+
+.range-input-wrapper input {
+	transform: rotate(-90deg);
 }
 
 .disk {
@@ -59,4 +130,25 @@ body {
 .disk-variant-2 {
 	border-color: #78909C;
 	background-color: #78909C;
+}
+
+.btn {
+	font-family: 'Roboto', sans-serif;
+	display: inline-block;
+	padding: 10px 20px;
+	margin: 10px 5px;
+	border: none;
+	border-radius: 5px;
+	text-transform: uppercase;
+	font-weight: 500;
+	font-size: 15px;
+}
+
+.btn-primary {
+	background-color: #009688;
+	color: #FFFFFF;
+}
+
+.btn-primary:hover {
+	background-color: #00796B;
 }
