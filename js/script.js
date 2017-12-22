@@ -1,10 +1,11 @@
 var isMoveable = false,
+	containerPositions = [],
 	$disks, $containers,
-	$btnReset = $id("js-btn-reset"),
-	$inputNumOfDisks = $id("js-ip-num-of-disks"),
-	$outputNumOfDisks = $id("js-op-num-of-disks"),
+	$btnReset = selectElId("js-btn-reset"),
+	$inputNumOfDisks = selectElId("js-ip-num-of-disks"),
+	$outputNumOfDisks = selectElId("js-op-num-of-disks"),
 	noOfMoves = 0,
-	$noOfMoves = $id("js-no-of-moves");
+	$noOfMoves = selectElId("js-no-of-moves");
 
 var jsStyles = (function() {
     // Create the <style> tag
@@ -19,11 +20,11 @@ var jsStyles = (function() {
     return style;
 })();
 
-function $id(id) {
+function selectElId(id) {
 	return document.getElementById(id);
 }
 
-function $class(className) {
+function selectElClass(className) {
 	return document.getElementsByClassName(className);
 }
 
@@ -39,7 +40,7 @@ function renderElements() {
 		jsStyles.sheet.deleteRule(i);
 	}
 
-	$containers = $class("js-container");
+	$containers = selectElClass("js-container");
 
 	for(var i = 0; i < $containers.length; i++) {
 		$containers[i].addEventListener("dragenter", dragEnter, false);
@@ -51,21 +52,20 @@ function renderElements() {
 	}
 
 	for(var i = 1, diskWidth = diskMinWidth; i <= numOfDisks; i++, diskWidth += 20) {
-		var disk = document.createElement("div"), diskStyle, diskLabelStyle, diskPositionStyle;
+		var $disk = document.createElement("div"), diskStyle, diskLabelStyle, diskPositionStyle;
 
-		disk.setAttribute("id", "disk-" + i);
-		disk.setAttribute("draggable", false);
-		disk.setAttribute("data-weightage", i);
+		$disk.setAttribute("id", "disk-" + i);
+		$disk.setAttribute("draggable", false);
+		$disk.setAttribute("data-weightage", i);
 
 		if (i % 2 == 0) {
-			disk.setAttribute("class", "disk js-move-disk disk-variant-2");
+			$disk.setAttribute("class", "disk js-move-disk disk-variant-2");
 		} else {
-			disk.setAttribute("class", "disk js-move-disk disk-variant-1");
+			$disk.setAttribute("class", "disk js-move-disk disk-variant-1");
 		}
 
 		diskStyle = "#disk-" + i + "{" +
 			"width: " + diskWidth + "px;" +
-			"margin-left: " + -(diskWidth + 4)/2 + "px;" +
 		"}";
 		jsStyles.sheet.insertRule(diskStyle, 0);
 
@@ -74,15 +74,12 @@ function renderElements() {
 		"}";
 		jsStyles.sheet.insertRule(diskLabelStyle, 0);
 
-		diskPositionStyle = ".container > .disk:nth-last-child(" + i + ") {" +
-			"bottom: " + (((diskHeight - 1) * (i - 1)) + 1) + "px;" +
-		"}";
-		jsStyles.sheet.insertRule(diskPositionStyle, 0);
+		selectElId('js-container-left').appendChild($disk);
 
-		$id('js-container-left').appendChild(disk);
-
-		disk.addEventListener("dragstart", startDrag, false);
-		disk.addEventListener("dragend", function(e) { e.preventDefault(); }, false);
+		$disk.addEventListener("dragstart", startDrag, false);
+		$disk.addEventListener("dragend", function(e) { e.preventDefault(); }, false);
+		$disk.addEventListener("touchstart", startDrag, false);
+		$disk.addEventListener("touchmove", startDrag, false);
 	}
 
 	containerStyle = ".container {" +
@@ -90,11 +87,23 @@ function renderElements() {
 	"}";
 	jsStyles.sheet.insertRule(containerStyle, 0);
 
-	$disks = $class("js-move-disk");
+	$disks = selectElClass("js-move-disk");
 	
 	noOfMoves = 0;
 	$noOfMoves.innerHTML = noOfMoves;
-	
+
+	for(var i = 0; i < $containers.length; i++) {
+		var positionLeft = $containers[i].offsetLeft, positionTop = $containers[i].offsetTop;
+
+		containerPositions.push({
+			elemId: $containers[i].id,
+			xLeft: positionLeft,
+			xRight: positionLeft + $containers[i].offsetWidth,
+			yTop: positionTop,
+			yBottom: positionTop + $containers[i].offsetHeight
+		});
+	}
+
 	checkContainers();
 }
 
@@ -111,9 +120,37 @@ function init() {
 }
 
 function startDrag(e) {
+	var targetEl, touch;
+
 	if(!e.target.previousElementSibling) {
-		e.dataTransfer.dropEffect = "move";
-		e.dataTransfer.setData('Text', e.target.getAttribute('id'));
+		if(e.type === "dragstart") {
+			e.dataTransfer.dropEffect = "move";
+			e.dataTransfer.setData('Text', e.target.getAttribute('id'));
+		} else if(e.targetTouches && e.targetTouches.length > 0) {
+			touch = e.targetTouches[0];
+			targetEl = e.target;
+			if(targetEl.nextElementSibling) {
+				targetEl.nextElementSibling.style.marginTop = "auto";
+			}
+			targetEl.style.position = "fixed";
+			targetEl.style.top = touch.clientY - (targetEl.offsetHeight/2) + "px";
+			targetEl.style.left = touch.clientX - (targetEl.offsetWidth/2) + "px";
+
+			for(var i = 0; i < containerPositions.length; i++) {
+				var betweenLeftRight = containerPositions[i].xLeft <= touch.clientX && touch.clientX <= containerPositions[i].xRight,
+					betweenTopBottom = containerPositions[i].yTop <= touch.clientY && touch.clientY <= containerPositions[i].yBottom,
+					containerEl = selectElId(containerPositions[i].elemId);
+				
+				if(betweenLeftRight && betweenTopBottom) {
+					containerEl.style.borderTopStyle = 'dotted';
+					containerEl.style.borderBottomStyle = 'dotted';
+				} else {
+					containerEl.style.borderTopStyle = 'solid';
+					containerEl.style.borderBottomStyle = 'solid';
+				}
+			}
+		}
+
 		isMoveable = true;
 	} else {
 		isMoveable = false;
@@ -121,11 +158,16 @@ function startDrag(e) {
 }
 
 function dragEnter(e) {
+	var targetEl;
 	e.preventDefault();
+	
+	if(e.type === "dragenter") {
+		targetEl = e.target;
+	}
 
-	if(isContainer(e.target) && isMoveable) {
-		e.target.style.borderTopStyle = 'dotted';
-		e.target.style.borderBottomStyle = 'dotted';
+	if(isContainer(targetEl) && isMoveable) {
+		targetEl.style.borderTopStyle = 'dotted';
+		targetEl.style.borderBottomStyle = 'dotted';
 	}
 }
 
@@ -144,8 +186,8 @@ function dropped(e) {
 
 	elemId = e.dataTransfer.getData('Text');
 
-	if(elemId && $id(elemId)) {
-		currentDiscWeightage = parseInt($id(elemId).getAttribute("data-weightage"), 10);
+	if(elemId && selectElId(elemId)) {
+		currentDiscWeightage = parseInt(selectElId(elemId).getAttribute("data-weightage"), 10);
 	}
 
 	children = e.target.children;
@@ -159,7 +201,7 @@ function dropped(e) {
 
 	if(isContainer(e.target)) {
 		if(isMoveValid) {
-			e.target.insertBefore($id(elemId), e.target.firstChild);
+			e.target.insertBefore(selectElId(elemId), e.target.firstChild);
 			$noOfMoves.innerHTML = ++noOfMoves;
 		}
 		e.target.style.borderTopStyle = 'solid';
