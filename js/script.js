@@ -27,8 +27,6 @@ function renderElements() {
 	$containers = selectElClass("js-container");
 
 	for(var i = 0; i < $containers.length; i++) {
-		var positionLeft = $containers[i].offsetLeft, positionTop = $containers[i].offsetTop;
-
 		$containers[i].addEventListener("dragenter", dragEnter, false);
 		$containers[i].addEventListener("dragleave", dragLeave, false);
 		$containers[i].addEventListener("dragover", function(e) { e.preventDefault(); }, false);
@@ -36,14 +34,6 @@ function renderElements() {
 
 		$containers[i].innerHTML = "";
 		$containers[i].classList.remove("on-over");
-
-		containerPositions.push({
-			containerId: $containers[i].id,
-			xLeft: positionLeft,
-			xRight: positionLeft + $containers[i].offsetWidth,
-			yTop: positionTop,
-			yBottom: positionTop + $containers[i].offsetHeight
-		});
 	}
 
 	for(var i = 1; i <= numOfDisks; i++) {
@@ -65,19 +55,8 @@ function renderElements() {
 	$disks = selectElClass("js-move-disk");	
 	noOfMoves = 0;
 	$noOfMoves.innerHTML = noOfMoves;
+	checkContainersPositions();
 	checkContainers();
-}
-
-function init() {
-	$inputNumOfDisks.addEventListener("change", function(e) {
-		renderElements();
-	}, false);
-
-	$btnReset.addEventListener("click", function(e) {
-		renderElements();
-	}, false);
-
-	renderElements();
 }
 
 function startDrag(e) {
@@ -202,4 +181,24 @@ function checkContainers() {
 	}
 }
 
-window.addEventListener("load", init, false);
+function checkContainersPositions() {
+	var positionLeft, positionTop;
+	containerPositions = [];
+
+	for(var i = 0; i < $containers.length; i++) {
+		positionLeft = $containers[i].offsetLeft, positionTop = $containers[i].offsetTop;
+
+		containerPositions.push({
+			containerId: $containers[i].id,
+			xLeft: positionLeft,
+			xRight: positionLeft + $containers[i].offsetWidth,
+			yTop: positionTop,
+			yBottom: positionTop + $containers[i].offsetHeight
+		});
+	}
+}
+
+window.addEventListener("load", renderElements, false);
+window.addEventListener("resize", checkContainersPositions, false);
+$inputNumOfDisks.addEventListener("change", renderElements, false);
+$btnReset.addEventListener("click", renderElements, false);
