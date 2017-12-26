@@ -1,24 +1,14 @@
-var isMoveable = false,
+var numOfDisks = 4,
+	noOfMoves = 0,
+	isMoveable = false,
 	containerPositions = [],
-	$disks, $containers,
+	$disks,
+	$containers,
+	$touchOverContainer,
 	$btnReset = selectElId("js-btn-reset"),
 	$inputNumOfDisks = selectElId("js-ip-num-of-disks"),
 	$outputNumOfDisks = selectElId("js-op-num-of-disks"),
-	noOfMoves = 0,
 	$noOfMoves = selectElId("js-no-of-moves");
-
-var jsStyles = (function() {
-    // Create the <style> tag
-    var style = document.createElement("style");
-
-    // WebKit hack
-    style.appendChild(document.createTextNode(""));
-
-    // Add the <style> element to the page
-    document.head.appendChild(style);
-
-    return style;
-})();
 
 function selectElId(id) {
 	return document.getElementById(id);
@@ -29,74 +19,26 @@ function selectElClass(className) {
 }
 
 function renderElements() {
-	var containerStyle, numOfDisks = 4, maxNoOfDisks = 7, diskMinWidth = 34, diskHeight = 31;
-
 	if($inputNumOfDisks) {
 		numOfDisks = parseInt($inputNumOfDisks.value, 10);
 	}
+
 	$outputNumOfDisks.innerHTML = numOfDisks;
-
-	for(var i = jsStyles.sheet.cssRules.length - 1; i > -1; i--) {
-		jsStyles.sheet.deleteRule(i);
-	}
-
 	$containers = selectElClass("js-container");
 
 	for(var i = 0; i < $containers.length; i++) {
+		var positionLeft = $containers[i].offsetLeft, positionTop = $containers[i].offsetTop;
+
 		$containers[i].addEventListener("dragenter", dragEnter, false);
 		$containers[i].addEventListener("dragleave", dragLeave, false);
 		$containers[i].addEventListener("dragover", function(e) { e.preventDefault(); }, false);
 		$containers[i].addEventListener("drop", dropped, false);
 
 		$containers[i].innerHTML = "";
-	}
-
-	for(var i = 1, diskWidth = diskMinWidth; i <= numOfDisks; i++, diskWidth += 20) {
-		var $disk = document.createElement("div"), diskStyle, diskLabelStyle, diskPositionStyle;
-
-		$disk.setAttribute("id", "disk-" + i);
-		$disk.setAttribute("draggable", false);
-		$disk.setAttribute("data-weightage", i);
-
-		if (i % 2 == 0) {
-			$disk.setAttribute("class", "disk js-move-disk disk-variant-2");
-		} else {
-			$disk.setAttribute("class", "disk js-move-disk disk-variant-1");
-		}
-
-		diskStyle = "#disk-" + i + "{" +
-			"width: " + diskWidth + "px;" +
-		"}";
-		jsStyles.sheet.insertRule(diskStyle, 0);
-
-		diskLabelStyle = "#disk-" + i + "::after {" +
-			"content: " + "\"" + i + "\";" +
-		"}";
-		jsStyles.sheet.insertRule(diskLabelStyle, 0);
-
-		selectElId('js-container-left').appendChild($disk);
-
-		$disk.addEventListener("dragstart", startDrag, false);
-		$disk.addEventListener("dragend", function(e) { e.preventDefault(); }, false);
-		$disk.addEventListener("touchstart", startDrag, false);
-		$disk.addEventListener("touchmove", startDrag, false);
-	}
-
-	containerStyle = ".container {" +
-		"height: " + ((maxNoOfDisks + 1) * diskHeight) + "px;" +
-	"}";
-	jsStyles.sheet.insertRule(containerStyle, 0);
-
-	$disks = selectElClass("js-move-disk");
-	
-	noOfMoves = 0;
-	$noOfMoves.innerHTML = noOfMoves;
-
-	for(var i = 0; i < $containers.length; i++) {
-		var positionLeft = $containers[i].offsetLeft, positionTop = $containers[i].offsetTop;
+		$containers[i].classList.remove("on-over");
 
 		containerPositions.push({
-			elemId: $containers[i].id,
+			containerId: $containers[i].id,
 			xLeft: positionLeft,
 			xRight: positionLeft + $containers[i].offsetWidth,
 			yTop: positionTop,
@@ -104,6 +46,25 @@ function renderElements() {
 		});
 	}
 
+	for(var i = 1; i <= numOfDisks; i++) {
+		var $disk = document.createElement("div");
+
+		$disk.setAttribute("id", "disk-" + i);
+		$disk.setAttribute("data-weightage", i);
+		$disk.setAttribute("class", "disk js-move-disk");
+
+		selectElId('js-container-left').appendChild($disk);
+
+		$disk.addEventListener("dragstart", startDrag, false);
+		$disk.addEventListener("dragend", function(e) { e.preventDefault(); }, false);
+		$disk.addEventListener("touchstart", startDrag, false);
+		$disk.addEventListener("touchmove", startDrag, false);
+		$disk.addEventListener("touchend", dropped, false);
+	}
+
+	$disks = selectElClass("js-move-disk");	
+	noOfMoves = 0;
+	$noOfMoves.innerHTML = noOfMoves;
 	checkContainers();
 }
 
@@ -139,14 +100,13 @@ function startDrag(e) {
 			for(var i = 0; i < containerPositions.length; i++) {
 				var betweenLeftRight = containerPositions[i].xLeft <= touch.clientX && touch.clientX <= containerPositions[i].xRight,
 					betweenTopBottom = containerPositions[i].yTop <= touch.clientY && touch.clientY <= containerPositions[i].yBottom,
-					containerEl = selectElId(containerPositions[i].elemId);
+					containerEl = selectElId(containerPositions[i].containerId);
 				
 				if(betweenLeftRight && betweenTopBottom) {
-					containerEl.style.borderTopStyle = 'dotted';
-					containerEl.style.borderBottomStyle = 'dotted';
+					containerEl.classList.add("on-over");
+					$touchOverContainer = containerEl;
 				} else {
-					containerEl.style.borderTopStyle = 'solid';
-					containerEl.style.borderBottomStyle = 'solid';
+					containerEl.classList.remove("on-over");
 				}
 			}
 		}
@@ -166,8 +126,7 @@ function dragEnter(e) {
 	}
 
 	if(isContainer(targetEl) && isMoveable) {
-		targetEl.style.borderTopStyle = 'dotted';
-		targetEl.style.borderBottomStyle = 'dotted';
+		targetEl.classList.add("on-over");
 	}
 }
 
@@ -175,37 +134,51 @@ function dragLeave(e) {
 	e.preventDefault();
 
 	if(isContainer(e.target)) {
-		e.target.style.borderTopStyle = 'solid';
-		e.target.style.borderBottomStyle = 'solid';
+		e.target.classList.remove("on-over");
 	}
 }
 
 function dropped(e) {
 	e.preventDefault();
-	var isMoveValid = false, firstDiscWeightage, currentDiscWeightage, elemId, children;
-
-	elemId = e.dataTransfer.getData('Text');
-
-	if(elemId && selectElId(elemId)) {
-		currentDiscWeightage = parseInt(selectElId(elemId).getAttribute("data-weightage"), 10);
+	var isMoveValid = false, firstDiscWeightage, currentDiscWeightage, diskId, containerChildren, $overContainer, $draggedDisk;
+	
+	if(e.dataTransfer) {
+		diskId = e.dataTransfer.getData('Text');
+		$overContainer = e.target;
+	} else if(e.type === "touchend") {
+		diskId = e.target.id;
+		$overContainer = $touchOverContainer;
+	} else {
+		return false;
 	}
 
-	children = e.target.children;
+	if($overContainer) {
+		containerChildren = $overContainer.children;
+		$draggedDisk = selectElId(diskId);
+	} else {
+		return false;
+	}
 
-	if(children && children[0]) {
-		firstDiscWeightage = parseInt(children[0].getAttribute("data-weightage"), 10);
+	if(diskId && $draggedDisk) {
+		currentDiscWeightage = parseInt($draggedDisk.getAttribute("data-weightage"), 10);
+	}
+
+	if(containerChildren && containerChildren[0]) {
+		firstDiscWeightage = parseInt(containerChildren[0].getAttribute("data-weightage"), 10);
 		isMoveValid = currentDiscWeightage < firstDiscWeightage;
 	} else {
-		isMoveValid = elemId && children.length === 0;
+		isMoveValid = diskId && containerChildren.length === 0;
 	}
 
-	if(isContainer(e.target)) {
+	if(isContainer($overContainer)) {
 		if(isMoveValid) {
-			e.target.insertBefore(selectElId(elemId), e.target.firstChild);
+			$overContainer.insertBefore($draggedDisk, $overContainer.firstChild);
 			$noOfMoves.innerHTML = ++noOfMoves;
 		}
-		e.target.style.borderTopStyle = 'solid';
-		e.target.style.borderBottomStyle = 'solid';
+		$overContainer.classList.remove("on-over");
+		$draggedDisk.style.position = "";
+		$draggedDisk.style.top = "";
+		$draggedDisk.style.left = "";
 	}
 
 	checkContainers();
@@ -216,15 +189,14 @@ function isContainer(elem) {
 }
 
 function checkContainers() {
-	var children;
+	var containerChildren;
 	for(var i = 0; i < $containers.length; i++) {
-		children = $containers[i].children;
+		containerChildren = $containers[i].children;
 
-		if(children && children.length > 0) {
-			children[0].setAttribute("draggable", true);
-
-			for(var j = 1; j < children.length; j++) {
-				children[j].setAttribute("draggable", false);
+		if(containerChildren && containerChildren.length > 0) {
+			for(var j = 0; j < containerChildren.length; j++) {
+				containerChildren[j].setAttribute("draggable", (j === 0));
+				containerChildren[j].style.marginTop = "";
 			}
 		}
 	}
