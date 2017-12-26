@@ -52,7 +52,7 @@ function renderElements() {
 		$disk.addEventListener("touchend", dropped, false);
 	}
 
-	$disks = selectElClass("js-move-disk");	
+	$disks = selectElClass("js-move-disk");
 	noOfMoves = 0;
 	$noOfMoves.innerHTML = noOfMoves;
 	checkContainersPositions();
@@ -80,7 +80,7 @@ function startDrag(e) {
 				var betweenLeftRight = containerPositions[i].xLeft <= touch.clientX && touch.clientX <= containerPositions[i].xRight,
 					betweenTopBottom = containerPositions[i].yTop <= touch.clientY && touch.clientY <= containerPositions[i].yBottom,
 					containerEl = selectElId(containerPositions[i].containerId);
-				
+
 				if(betweenLeftRight && betweenTopBottom) {
 					containerEl.classList.add("on-over");
 					$touchOverContainer = containerEl;
@@ -99,7 +99,7 @@ function startDrag(e) {
 function dragEnter(e) {
 	var targetEl;
 	e.preventDefault();
-	
+
 	if(e.type === "dragenter") {
 		targetEl = e.target;
 	}
@@ -120,11 +120,11 @@ function dragLeave(e) {
 function dropped(e) {
 	e.preventDefault();
 	var isMoveValid = false, firstDiscWeightage, currentDiscWeightage, diskId, containerChildren, $overContainer, $draggedDisk;
-	
+
 	if(e.dataTransfer) {
 		diskId = e.dataTransfer.getData('Text');
 		$overContainer = e.target;
-	} else if(e.type === "touchend") {
+	} else if(e.type === "touchend" && isMoveable) {
 		diskId = e.target.id;
 		$overContainer = $touchOverContainer;
 	} else {

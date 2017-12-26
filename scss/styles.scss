@@ -19,7 +19,7 @@ body {
 	padding-bottom: 12px;
 	background-color: $color-header-bg;
 	border-bottom: 1px solid $color-header-border;
-	
+
 	h1 {
 		font-weight: 500;
 		font-size: 30px;
@@ -43,8 +43,8 @@ body {
 	background-color: $color-container-bg;
 	border-top: 5px solid $color-container-border;
 	border-bottom: 5px solid $color-container-border;
-	height: (($max-disks + 1) * $disk-height) + "px";
-	
+	height: (($max-disks + 1) * $disk-height) + px;
+
 	&.on-over {
 		border-top-style: dotted;
 		border-bottom-style: dotted;
@@ -53,15 +53,15 @@ body {
 	&.left::before {
 		content: "A";
 	}
-	
+
 	&.center::before {
 		content: "B";
 	}
-	
+
 	&.right::before {
 		content: "C";
 	}
-	
+
 	&::before {
 		color: $color-container-label;
 		background-color: $color-container-border;
@@ -113,8 +113,8 @@ $disk-width: $disk-min-width;
 
 @for $i from 1 through $max-disks {
 	#disk-#{$i} {
-		width: $disk-width + "px";
-		
+		width: $disk-width + px;
+
 		@if $i % 2 == 0 {
 			border-color: $color-disk-v2-bg;
 			background-color: $color-disk-v2-bg;
@@ -171,7 +171,7 @@ $disk-width: $disk-min-width;
 		.range-input-wrapper, label {
 			margin: auto;
 		}
-	  
+
 		.range-input-wrapper {
 			margin-left: 15px;
 			order: 1;
@@ -183,7 +183,7 @@ $disk-width: $disk-min-width;
 			display: inline-block;
 			width: 49%;
 		}
-	  
+
 		.btn-wrapper {
 			text-align: right;
 		}
@@ -281,7 +281,7 @@ $disk-width: $disk-min-width;
 
 	.controls-wrapper .range-input-wrapper {
 		min-height: 100px;
-		
+
 		input {
 			transform: rotate(-90deg);
 		}
